@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกรายรับ-รายจ่าย (Auto-Sync)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>บันทึกรายรับ-รายจ่าย (GitHub Pages)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for visualization -->
@@ -12,86 +12,89 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
-        body { font-family: 'Sarabun', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-4 md:p-8 text-slate-900">
+<body class="bg-slate-50 min-h-screen text-slate-900 overflow-x-hidden">
 
-    <div class="max-w-6xl mx-auto" id="app">
-        <!-- Header -->
-        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="wallet" class="text-blue-600"></i> บันทึกรายรับ-รายจ่าย
+    <div class="max-w-7xl mx-auto px-4 py-6 md:px-8 md:py-10" id="app">
+        <!-- Header Section -->
+        <header class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="text-center sm:text-left">
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-800 flex items-center justify-center sm:justify-start gap-2">
+                    <i data-lucide="wallet" class="text-blue-600 w-8 h-8 md:w-9 md:h-9"></i> บันทึกรายรับ-รายจ่าย
                 </h1>
-                <div class="flex items-center gap-2 mt-1">
-                    <div id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <p id="status-text" class="text-slate-500 text-sm">พร้อมใช้งาน</p>
+                <div class="flex items-center justify-center sm:justify-start gap-2 mt-2">
+                    <div id="status-dot" class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                    <p id="status-text" class="text-slate-500 text-sm font-medium">พร้อมใช้งาน</p>
                 </div>
             </div>
-            <button onclick="fetchData()" class="flex items-center gap-2 bg-white hover:bg-slate-50 px-4 py-2 rounded-xl shadow-sm border border-slate-200 transition-all active:scale-95">
-                <i data-lucide="refresh-cw" id="refresh-icon" class="text-slate-600"></i>
-                <span class="text-sm font-medium">รีเฟรชข้อมูล</span>
+            <button onclick="fetchData()" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-slate-50 active:bg-slate-100 px-5 py-3 rounded-2xl shadow-sm border border-slate-200 transition-all active:scale-95">
+                <i data-lucide="refresh-cw" id="refresh-icon" class="text-slate-600 w-5 h-5"></i>
+                <span class="text-sm font-bold text-slate-700">รีเฟรชข้อมูล</span>
             </button>
         </header>
 
-        <!-- Dashboard -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-slate-500 font-medium">ยอดคงเหลือ</span>
-                    <i data-lucide="circle-dollar-sign" class="text-blue-500"></i>
+                    <span class="text-slate-500 font-semibold text-xs uppercase tracking-wider">ยอดคงเหลือ</span>
+                    <div class="p-2 bg-blue-50 rounded-xl"><i data-lucide="circle-dollar-sign" class="text-blue-600 w-5 h-5"></i></div>
                 </div>
-                <div id="balance-amt" class="text-2xl font-bold">฿0</div>
+                <div id="balance-amt" class="text-2xl md:text-3xl font-bold text-slate-800">฿0.00</div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex justify-between items-center mb-2 text-green-600 font-medium">
-                    <span>รายรับรวม</span>
-                    <i data-lucide="trending-up"></i>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-green-600 font-semibold text-xs uppercase tracking-wider">รายรับรวม</span>
+                    <div class="p-2 bg-green-50 rounded-xl"><i data-lucide="trending-up" class="text-green-600 w-5 h-5"></i></div>
                 </div>
-                <div id="income-amt" class="text-2xl font-bold">฿0</div>
+                <div id="income-amt" class="text-2xl md:text-3xl font-bold text-slate-800">฿0.00</div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex justify-between items-center mb-2 text-red-600 font-medium">
-                    <span>รายจ่ายรวม</span>
-                    <i data-lucide="trending-down"></i>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 sm:col-span-2 lg:col-span-1">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-red-600 font-semibold text-xs uppercase tracking-wider">รายจ่ายรวม</span>
+                    <div class="p-2 bg-red-50 rounded-xl"><i data-lucide="trending-down" class="text-red-600 w-5 h-5"></i></div>
                 </div>
-                <div id="expense-amt" class="text-2xl font-bold">฿0</div>
+                <div id="expense-amt" class="text-2xl md:text-3xl font-bold text-slate-800">฿0.00</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Form -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h2 class="text-xl font-semibold mb-4 text-slate-800">เพิ่มรายการ</h2>
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+            
+            <!-- Left Panel: Input & Analytics -->
+            <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+                <!-- Form -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold mb-5 text-slate-800">เพิ่มรายการใหม่</h2>
                     <form id="transaction-form" class="space-y-4">
-                        <div class="flex p-1 bg-slate-100 rounded-lg" id="type-toggle">
-                            <button type="button" data-type="income" class="type-btn flex-1 py-2 rounded-md text-sm font-medium transition-all text-slate-500">รายรับ</button>
-                            <button type="button" data-type="expense" class="type-btn flex-1 py-2 rounded-md text-sm font-medium transition-all bg-white text-red-600 shadow-sm">รายจ่าย</button>
+                        <div class="flex p-1 bg-slate-100 rounded-2xl" id="type-toggle">
+                            <button type="button" data-type="income" class="type-btn flex-1 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-500">รายรับ</button>
+                            <button type="button" data-type="expense" class="type-btn flex-1 py-2.5 rounded-xl text-sm font-bold transition-all bg-white text-red-600 shadow-sm">รายจ่าย</button>
                         </div>
-
                         <div>
-                            <label class="block text-sm text-slate-600 mb-1">วันที่</label>
-                            <input type="date" id="input-date" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">วันที่รายการ</label>
+                            <input type="date" id="input-date" required class="w-full px-4 py-3 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700">
                         </div>
-
                         <div>
-                            <label class="block text-sm text-slate-600 mb-1">รายการ</label>
-                            <input type="text" id="input-desc" placeholder="เช่น ค่าอาหาร" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">รายละเอียด</label>
+                            <input type="text" id="input-desc" placeholder="เช่น ค่าอาหารกลางวัน" required class="w-full px-4 py-3 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700">
                         </div>
-
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm text-slate-600 mb-1">จำนวนเงิน</label>
-                                <input type="number" id="input-amount" placeholder="0.00" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">จำนวนเงิน</label>
+                                <input type="number" id="input-amount" step="0.01" placeholder="0.00" required class="w-full px-4 py-3 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700">
                             </div>
                             <div>
-                                <label class="block text-sm text-slate-600 mb-1">หมวดหมู่</label>
-                                <select id="input-cat" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                                <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">หมวดหมู่</label>
+                                <select id="input-cat" class="w-full px-4 py-3 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none bg-white text-slate-700">
                                     <option>อาหาร</option>
                                     <option>เดินทาง</option>
                                     <option>ช้อปปิ้ง</option>
@@ -102,54 +105,53 @@
                                 </select>
                             </div>
                         </div>
-
-                        <button type="submit" id="submit-btn" class="w-full py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
-                            <i data-lucide="plus-circle" size="20"></i> เพิ่มรายการ
+                        <button type="submit" id="submit-btn" class="w-full py-4 rounded-2xl font-bold text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg shadow-red-100 active:scale-95 flex items-center justify-center gap-2 mt-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i> บันทึกรายการ
                         </button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h2 class="text-lg font-semibold mb-4 text-slate-800">สัดส่วนรายจ่าย</h2>
-                    <canvas id="categoryChart"></canvas>
+                <!-- Charts -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-widest">เปรียบเทียบ รายรับ-รายจ่าย</h2>
+                    <div class="h-48"><canvas id="comparisonChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-widest">สัดส่วนรายจ่าย</h2>
+                    <div class="h-64"><canvas id="categoryChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- List -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-slate-800">ประวัติรายการ</h2>
-                        <span id="count-tag" class="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">0 รายการ</span>
+            <!-- Right Panel: Transaction History -->
+            <div class="lg:col-span-7 xl:col-span-8">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-100 h-full flex flex-col overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800">ประวัติการทำรายการ</h2>
+                        <span id="count-tag" class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">0 รายการ</span>
                     </div>
-                    <div id="transaction-list" class="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
-                        <!-- Items injected here -->
+                    <div id="transaction-list" class="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar lg:max-h-[950px]">
+                        <!-- JS handles content -->
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 
     <script>
+        // --- ส่วนการตั้งค่า URL ของ Google Apps Script ---
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyUo7IF3bZrTdGvQORfsP6PEeJ01EvA2R00qwzgNql_APa3wTYl98HANvu9xaqzxnwJbQ/exec';
+        
         let transactions = [];
         let currentType = 'expense';
-        let chartInstance = null;
+        let categoryChartInstance = null;
+        let comparisonChartInstance = null;
 
-        // Initialize Icons
+        // เริ่มต้นไอคอนและวันที่
         lucide.createIcons();
-
-        // DOM Elements
-        const form = document.getElementById('transaction-form');
-        const listContainer = document.getElementById('transaction-list');
-        const statusText = document.getElementById('status-text');
-        const statusDot = document.getElementById('status-dot');
-        const refreshIcon = document.getElementById('refresh-icon');
-
-        // Set Default Date
         document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
 
-        // Type Toggle Logic
+        // ระบบสลับประเภท รายรับ/รายจ่าย
         document.querySelectorAll('.type-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 currentType = btn.dataset.type;
@@ -161,41 +163,40 @@
                 btn.classList.add('bg-white', 'shadow-sm', currentType === 'income' ? 'text-green-600' : 'text-red-600');
                 
                 const submitBtn = document.getElementById('submit-btn');
-                submitBtn.className = `w-full py-3 rounded-xl font-bold text-white transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 ${currentType === 'income' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`;
+                if (currentType === 'income') {
+                    submitBtn.className = "w-full py-4 rounded-2xl font-bold text-white bg-green-600 hover:bg-green-700 transition-all shadow-lg shadow-green-100 active:scale-95 flex items-center justify-center gap-2 mt-2";
+                } else {
+                    submitBtn.className = "w-full py-4 rounded-2xl font-bold text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg shadow-red-100 active:scale-95 flex items-center justify-center gap-2 mt-2";
+                }
             });
         });
 
-        // Load Initial Data
-        window.onload = () => {
-            const saved = localStorage.getItem('my_expenses');
-            if (saved) {
-                transactions = JSON.parse(saved);
-                renderApp();
-            }
-            fetchData();
-        };
-
+        // ดึงข้อมูลจาก Google Sheets
         async function fetchData() {
-            setLoading(true, "กำลังโหลดจาก Google Sheets...");
+            setLoading(true, "กำลังโหลดข้อมูลล่าสุด...");
             try {
                 const response = await fetch(SHEET_URL);
                 if (!response.ok) throw new Error();
                 const data = await response.json();
                 if (Array.isArray(data)) {
-                    transactions = data.map(i => ({...i, amount: parseFloat(i.amount), id: Number(i.id)}))
-                                     .sort((a,b) => b.id - a.id);
-                    localStorage.setItem('my_expenses', JSON.stringify(transactions));
+                    transactions = data.map(i => ({
+                        ...i, 
+                        amount: parseFloat(i.amount), 
+                        id: Number(i.id),
+                        time: i.time || '--:--'
+                    })).sort((a,b) => b.id - a.id);
+                    localStorage.setItem('gh_wallet_v2', JSON.stringify(transactions));
                 }
-                setLoading(false, "ข้อมูลล่าสุดจาก Cloud");
+                setLoading(false, "อัปเดตข้อมูลสำเร็จ");
             } catch (e) {
-                console.error(e);
-                setLoading(false, "แสดงข้อมูลล่าสุด (Offline Mode)", "bg-amber-500");
+                setLoading(false, "โหมดออฟไลน์ (ใช้ข้อมูลในเครื่อง)", "bg-amber-500");
             }
             renderApp();
         }
 
+        // ส่งข้อมูลไปบันทึกที่ Google Sheets
         async function syncData() {
-            setLoading(true, "กำลังซิงค์ไปที่ Cloud...");
+            setLoading(true, "กำลังส่งข้อมูลไปที่ Cloud...");
             try {
                 await fetch(SHEET_URL, {
                     method: 'POST',
@@ -204,39 +205,57 @@
                 });
                 setLoading(false, "บันทึกเรียบร้อย");
             } catch (e) {
-                setLoading(false, "บันทึกในเครื่องแล้ว (รอซิงค์)", "bg-amber-500");
+                setLoading(false, "บันทึกในเครื่องแล้ว (รอกำลังซิงค์)", "bg-amber-500");
             }
         }
 
-        form.onsubmit = async (e) => {
+        // จัดการการส่งฟอร์ม
+        document.getElementById('transaction-form').onsubmit = async (e) => {
             e.preventDefault();
+            
+            // สร้างเวลาปัจจุบันในรูปแบบ 24 ชม.
+            const now = new Date();
+            const timeStr = new Intl.DateTimeFormat('th-TH', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(now);
+
             const newItem = {
                 id: Date.now(),
                 description: document.getElementById('input-desc').value,
                 amount: parseFloat(document.getElementById('input-amount').value),
                 type: currentType,
                 category: document.getElementById('input-cat').value,
-                date: document.getElementById('input-date').value
+                date: document.getElementById('input-date').value,
+                time: timeStr // เก็บเวลาแบบ 24 ชม.
             };
+
             transactions = [newItem, ...transactions];
-            form.reset();
+            e.target.reset();
             document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
             renderApp();
             await syncData();
         };
 
+        // ลบรายการ
         async function deleteItem(id) {
             transactions = transactions.filter(t => t.id !== id);
             renderApp();
             await syncData();
         }
 
+        // แสดงผลหน้าหลัก
         function renderApp() {
-            // Totals
             let inc = 0, exp = 0;
             const cats = {};
-            
-            listContainer.innerHTML = '';
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = '';
+
+            if (transactions.length === 0) {
+                list.innerHTML = `<div class="text-center py-20 text-slate-300 font-medium">ยังไม่มีข้อมูลในรายการ</div>`;
+            }
+
             transactions.forEach(t => {
                 if (t.type === 'income') inc += t.amount;
                 else {
@@ -244,68 +263,102 @@
                     cats[t.category] = (cats[t.category] || 0) + t.amount;
                 }
 
-                // List Items
-                const div = document.createElement('div');
-                div.className = "group flex items-center justify-between p-4 bg-slate-50 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100";
-                div.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="p-2 rounded-lg ${t.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                            <i data-lucide="${t.type === 'income' ? 'trending-up' : 'trending-down'}" size="20"></i>
+                const card = document.createElement('div');
+                card.className = "group flex items-center justify-between p-4 bg-slate-50 hover:bg-white rounded-2xl transition-all border border-transparent hover:border-slate-200 hover:shadow-sm";
+                card.innerHTML = `
+                    <div class="flex items-center gap-4 overflow-hidden">
+                        <div class="flex-shrink-0 p-2.5 rounded-xl ${t.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                            <i data-lucide="${t.type === 'income' ? 'trending-up' : 'trending-down'}" class="w-5 h-5"></i>
                         </div>
-                        <div>
-                            <div class="font-semibold text-slate-800">${t.description}</div>
-                            <div class="text-xs text-slate-500 flex items-center gap-2">
-                                <span>${t.date}</span>
-                                <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                <span>${t.category}</span>
+                        <div class="truncate">
+                            <div class="font-bold text-slate-800 truncate">${t.description}</div>
+                            <div class="text-[10px] md:text-xs text-slate-400 font-bold uppercase flex items-center gap-1.5 mt-0.5">
+                                <span class="flex items-center gap-1 whitespace-nowrap"><i data-lucide="calendar" class="w-3 h-3"></i> ${t.date}</span>
+                                <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
+                                <span class="flex items-center gap-1 whitespace-nowrap"><i data-lucide="clock" class="w-3 h-3"></i> ${t.time || '--:--'}</span>
+                                <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
+                                <span class="truncate">${t.category}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <span class="font-bold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                            ${t.type === 'income' ? '+' : '-'} ฿${t.amount.toLocaleString()}
+                    <div class="flex items-center gap-3 ml-2">
+                        <span class="font-bold whitespace-nowrap text-sm md:text-base ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                            ${t.type === 'income' ? '+' : '-'} ฿${t.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
                         </span>
-                        <button onclick="deleteItem(${t.id})" class="p-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                            <i data-lucide="trash-2" size="18"></i>
+                        <button onclick="deleteItem(${t.id})" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
                 `;
-                listContainer.appendChild(div);
+                list.appendChild(card);
             });
 
-            document.getElementById('balance-amt').innerText = `฿${(inc - exp).toLocaleString()}`;
-            document.getElementById('income-amt').innerText = `฿${inc.toLocaleString()}`;
-            document.getElementById('expense-amt').innerText = `฿${exp.toLocaleString()}`;
+            document.getElementById('balance-amt').innerText = `฿${(inc - exp).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('income-amt').innerText = `฿${inc.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('expense-amt').innerText = `฿${exp.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
             document.getElementById('count-tag').innerText = `${transactions.length} รายการ`;
 
-            updateChart(cats);
+            updateCharts(inc, exp, cats);
             lucide.createIcons();
         }
 
-        function updateChart(cats) {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            const data = {
-                labels: Object.keys(cats),
-                datasets: [{
-                    data: Object.values(cats),
-                    backgroundColor: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d']
-                }]
-            };
-
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: data,
-                options: { plugins: { legend: { position: 'bottom' } } }
+        // อัปเดตแผนภูมิ
+        function updateCharts(income, expense, cats) {
+            const compCtx = document.getElementById('comparisonChart').getContext('2d');
+            if (comparisonChartInstance) comparisonChartInstance.destroy();
+            comparisonChartInstance = new Chart(compCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['สรุป'],
+                    datasets: [
+                        { label: 'รายรับ', data: [income], backgroundColor: '#10b981', borderRadius: 8, barThickness: 30 },
+                        { label: 'รายจ่าย', data: [expense], backgroundColor: '#ef4444', borderRadius: 8, barThickness: 30 }
+                    ]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                }
             });
+
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+            const labels = Object.keys(cats);
+            if (labels.length > 0) {
+                categoryChartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: Object.values(cats),
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'],
+                            borderWidth: 4, borderColor: '#fff'
+                        }]
+                    },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, cutout: '70%',
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, family: 'Sarabun' }, padding: 15 } } }
+                    }
+                });
+            }
         }
 
+        // สถานะการโหลด
         function setLoading(active, text, dotClass = "bg-green-500") {
+            const statusText = document.getElementById('status-text');
+            const statusDot = document.getElementById('status-dot');
+            const refreshIcon = document.getElementById('refresh-icon');
             statusText.innerText = text;
-            statusDot.className = `w-2 h-2 rounded-full ${active ? 'bg-amber-500 animate-pulse' : dotClass}`;
+            statusDot.className = `w-2.5 h-2.5 rounded-full ${active ? 'bg-amber-500 animate-pulse' : dotClass}`;
             if (active) refreshIcon.classList.add('animate-spin');
             else refreshIcon.classList.remove('animate-spin');
         }
+
+        // โหลดข้อมูลเบื้องต้น
+        const saved = localStorage.getItem('gh_wallet_v2');
+        if (saved) { transactions = JSON.parse(saved); renderApp(); }
+        fetchData();
     </script>
 </body>
 </html>
