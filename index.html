@@ -114,11 +114,15 @@
                 <!-- Charts -->
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                     <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-widest">เปรียบเทียบ รายรับ-รายจ่าย</h2>
-                    <div class="h-48"><canvas id="comparisonChart"></canvas></div>
+                    <div class="h-48 relative">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
                 </div>
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                     <h2 class="text-sm font-bold mb-4 text-slate-400 uppercase tracking-widest">สัดส่วนรายจ่าย</h2>
-                    <div class="h-64"><canvas id="categoryChart"></canvas></div>
+                    <div class="h-64 relative">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -139,7 +143,6 @@
     </div>
 
     <script>
-        // --- ส่วนการตั้งค่า URL ของ Google Apps Script ---
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyUo7IF3bZrTdGvQORfsP6PEeJ01EvA2R00qwzgNql_APa3wTYl98HANvu9xaqzxnwJbQ/exec';
         
         let transactions = [];
@@ -147,11 +150,9 @@
         let categoryChartInstance = null;
         let comparisonChartInstance = null;
 
-        // เริ่มต้นไอคอนและวันที่
         lucide.createIcons();
         document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
 
-        // ระบบสลับประเภท รายรับ/รายจ่าย
         document.querySelectorAll('.type-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 currentType = btn.dataset.type;
@@ -171,7 +172,6 @@
             });
         });
 
-        // ดึงข้อมูลจาก Google Sheets
         async function fetchData() {
             setLoading(true, "กำลังโหลดข้อมูลล่าสุด...");
             try {
@@ -181,7 +181,7 @@
                 if (Array.isArray(data)) {
                     transactions = data.map(i => ({
                         ...i, 
-                        amount: parseFloat(i.amount), 
+                        amount: parseFloat(i.amount) || 0, 
                         id: Number(i.id),
                         time: i.time || '--:--'
                     })).sort((a,b) => b.id - a.id);
@@ -189,14 +189,13 @@
                 }
                 setLoading(false, "อัปเดตข้อมูลสำเร็จ");
             } catch (e) {
-                setLoading(false, "โหมดออฟไลน์ (ใช้ข้อมูลในเครื่อง)", "bg-amber-500");
+                setLoading(false, "โหมดออฟไลน์", "bg-amber-500");
             }
             renderApp();
         }
 
-        // ส่งข้อมูลไปบันทึกที่ Google Sheets
         async function syncData() {
-            setLoading(true, "กำลังส่งข้อมูลไปที่ Cloud...");
+            setLoading(true, "กำลังส่งข้อมูล...");
             try {
                 await fetch(SHEET_URL, {
                     method: 'POST',
@@ -205,15 +204,12 @@
                 });
                 setLoading(false, "บันทึกเรียบร้อย");
             } catch (e) {
-                setLoading(false, "บันทึกในเครื่องแล้ว (รอกำลังซิงค์)", "bg-amber-500");
+                setLoading(false, "บันทึกในเครื่องแล้ว", "bg-amber-500");
             }
         }
 
-        // จัดการการส่งฟอร์ม
         document.getElementById('transaction-form').onsubmit = async (e) => {
             e.preventDefault();
-            
-            // สร้างเวลาปัจจุบันในรูปแบบ 24 ชม.
             const now = new Date();
             const timeStr = new Intl.DateTimeFormat('th-TH', {
                 hour: '2-digit',
@@ -228,7 +224,7 @@
                 type: currentType,
                 category: document.getElementById('input-cat').value,
                 date: document.getElementById('input-date').value,
-                time: timeStr // เก็บเวลาแบบ 24 ชม.
+                time: timeStr
             };
 
             transactions = [newItem, ...transactions];
@@ -238,14 +234,12 @@
             await syncData();
         };
 
-        // ลบรายการ
         async function deleteItem(id) {
             transactions = transactions.filter(t => t.id !== id);
             renderApp();
             await syncData();
         }
 
-        // แสดงผลหน้าหลัก
         function renderApp() {
             let inc = 0, exp = 0;
             const cats = {};
@@ -257,10 +251,11 @@
             }
 
             transactions.forEach(t => {
-                if (t.type === 'income') inc += t.amount;
+                const amt = parseFloat(t.amount) || 0;
+                if (t.type === 'income') inc += amt;
                 else {
-                    exp += t.amount;
-                    cats[t.category] = (cats[t.category] || 0) + t.amount;
+                    exp += amt;
+                    cats[t.category] = (cats[t.category] || 0) + amt;
                 }
 
                 const card = document.createElement('div');
@@ -283,7 +278,7 @@
                     </div>
                     <div class="flex items-center gap-3 ml-2">
                         <span class="font-bold whitespace-nowrap text-sm md:text-base ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                            ${t.type === 'income' ? '+' : '-'} ฿${t.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            ${t.type === 'income' ? '+' : '-'} ฿${amt.toLocaleString(undefined, {minimumFractionDigits: 2})}
                         </span>
                         <button onclick="deleteItem(${t.id})" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -302,27 +297,56 @@
             lucide.createIcons();
         }
 
-        // อัปเดตแผนภูมิ
         function updateCharts(income, expense, cats) {
-            const compCtx = document.getElementById('comparisonChart').getContext('2d');
+            // Comparison Bar Chart Fix
+            const compCtx = document.getElementById('comparisonChart');
             if (comparisonChartInstance) comparisonChartInstance.destroy();
+            
+            // Ensure values are numbers and handle zero cases
+            const safeIncome = parseFloat(income) || 0;
+            const safeExpense = parseFloat(expense) || 0;
+
             comparisonChartInstance = new Chart(compCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['สรุป'],
-                    datasets: [
-                        { label: 'รายรับ', data: [income], backgroundColor: '#10b981', borderRadius: 8, barThickness: 30 },
-                        { label: 'รายจ่าย', data: [expense], backgroundColor: '#ef4444', borderRadius: 8, barThickness: 30 }
-                    ]
+                    labels: ['รายรับ', 'รายจ่าย'],
+                    datasets: [{
+                        label: 'จำนวนเงิน',
+                        data: [safeIncome, safeExpense],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderRadius: 12,
+                        barThickness: 40
+                    }]
                 },
                 options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ฿' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: 'Sarabun', size: 10 } }
+                        }, 
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { family: 'Sarabun', size: 12, weight: 'bold' } }
+                        } 
+                    }
                 }
             });
 
-            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            // Category Doughnut Chart
+            const catCtx = document.getElementById('categoryChart');
             if (categoryChartInstance) categoryChartInstance.destroy();
             const labels = Object.keys(cats);
             if (labels.length > 0) {
@@ -344,7 +368,6 @@
             }
         }
 
-        // สถานะการโหลด
         function setLoading(active, text, dotClass = "bg-green-500") {
             const statusText = document.getElementById('status-text');
             const statusDot = document.getElementById('status-dot');
@@ -355,9 +378,13 @@
             else refreshIcon.classList.remove('animate-spin');
         }
 
-        // โหลดข้อมูลเบื้องต้น
         const saved = localStorage.getItem('gh_wallet_v2');
-        if (saved) { transactions = JSON.parse(saved); renderApp(); }
+        if (saved) { 
+            try {
+                transactions = JSON.parse(saved); 
+                renderApp(); 
+            } catch(e) { console.error("Parse error", e); }
+        }
         fetchData();
     </script>
 </body>
